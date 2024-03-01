@@ -7,6 +7,8 @@ find_package(SDL2 REQUIRED SDL2)
 add_executable(space_invaders main.cpp
         src/Application.cpp
         src/Application.h
+        src/SDLManager.cpp
+        src/SDLManager.h
 )
 
 target_link_libraries(space_invaders

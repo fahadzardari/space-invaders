@@ -4,10 +4,11 @@
 
 #ifndef SPACE_INVADERS_APPLICATION_H
 #define SPACE_INVADERS_APPLICATION_H
-
+#include "SDLManager.h"
 
 class Application {
 public:
+    SDLManager sdl;
     void run();
 };
 
