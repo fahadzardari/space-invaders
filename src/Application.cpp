@@ -7,7 +7,7 @@
 
 void Application::run() {
     sdl.initialize();
-    sdl.window = SDL_CreateWindow("Space Invaders" , 200 , 200 , 800 , 600 , SDL_WINDOW_RESIZABLE);
+    sdl.createWindow();
     bool run = true;
     while(run){
         SDL_Event ev;
@@ -18,5 +18,9 @@ void Application::run() {
                     break;
             }
         }
+        sdl.clear();
+        sdl.display();
     }
+    sdl.cleanup();
+    SDL_Quit();
 }
