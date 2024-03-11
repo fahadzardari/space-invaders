@@ -8,6 +8,9 @@
 void Application::run() {
     sdl.initialize();
     sdl.createWindow();
+
+    SDL_Texture* texture = sdl.loadTexture("../assets/invader_white.png");
+
     bool run = true;
     while(run){
         SDL_Event ev;
@@ -19,6 +22,7 @@ void Application::run() {
             }
         }
         sdl.clear();
+        sdl.renderTexture(texture);
         sdl.display();
     }
     sdl.cleanup();

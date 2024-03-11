@@ -17,12 +17,15 @@ public:
     SDLManager();
     void initialize();
     void createWindow();
-    void clear();
+    SDL_Texture* loadTexture(const char* filePath);
     void display();
+    void renderTexture(SDL_Texture* tex);
+    void clear();
     void cleanup();
+
+private:
     SDL_Window *window;
     SDL_Renderer *renderer;
-private:
 };
 
 
