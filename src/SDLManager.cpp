@@ -30,7 +30,20 @@ SDL_Texture* SDLManager::loadTexture(const char *filePath) {
 }
 
 void SDLManager::renderTexture(SDL_Texture *tex) {
-    SDL_RenderCopy(this->renderer , tex , NULL , NULL);
+    SDL_Rect src;
+    src.x = 0;
+    src.y = 0;
+    src.w = 1300;
+    src.h = 1300;
+
+    SDL_Rect dest;
+    dest.x = SCREEN_WIDTH - (SCREEN_WIDTH/2);
+    dest.y = SCREEN_HEIGHT - 50;
+    dest.w = 50;
+    dest.h = 50;
+
+
+    SDL_RenderCopy(this->renderer , tex , NULL , &dest);
 }
 
 void SDLManager::clear() {

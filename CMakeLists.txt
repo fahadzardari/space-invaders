@@ -13,6 +13,8 @@ add_executable(space_invaders main.cpp
         src/Application.h
         src/SDLManager.cpp
         src/SDLManager.h
+        src/Invader.cpp
+        src/Invader.h
 )
 target_include_directories(space_invaders PRIVATE ${SDL2IMAGE_INCLUDE_DIRS})
 target_link_libraries(space_invaders PRIVATE ${SDL2IMAGE_LIBRARIES})

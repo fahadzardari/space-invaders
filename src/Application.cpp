@@ -9,7 +9,7 @@ void Application::run() {
     sdl.initialize();
     sdl.createWindow();
 
-    SDL_Texture* texture = sdl.loadTexture("../assets/invader_white.png");
+    SDL_Texture* texture = sdl.loadTexture("../assets/ship.png");
 
     bool run = true;
     while(run){
