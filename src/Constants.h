@@ -1,0 +1,11 @@
+//
+// Created by mrzardari on 3/22/24.
+//
+
+#ifndef SPACE_INVADERS_CONSTANTS_H
+#define SPACE_INVADERS_CONSTANTS_H
+#define SCREEN_WIDTH 1200
+#define SCREEN_HEIGHT 900
+
+
+#endif //SPACE_INVADERS_CONSTANTS_H

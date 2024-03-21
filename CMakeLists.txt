@@ -19,6 +19,7 @@ add_executable(space_invaders main.cpp
         src/Ship.h
         src/Vector2f.cpp
         src/Vector2f.h
+        src/Constants.h
 )
 target_include_directories(space_invaders PRIVATE ${SDL2IMAGE_INCLUDE_DIRS})
 target_link_libraries(space_invaders PRIVATE ${SDL2IMAGE_LIBRARIES})

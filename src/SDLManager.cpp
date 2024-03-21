@@ -30,20 +30,13 @@ SDL_Texture* SDLManager::loadTexture(const char *filePath) {
 }
 
 void SDLManager::renderTexture(SDL_Texture *tex) {
-    SDL_Rect src;
-    src.x = 0;
-    src.y = 0;
-    src.w = 1300;
-    src.h = 1300;
-
     SDL_Rect dest;
     dest.x = SCREEN_WIDTH - (SCREEN_WIDTH/2);
     dest.y = SCREEN_HEIGHT - 50;
     dest.w = 50;
     dest.h = 50;
 
-
-    SDL_RenderCopy(this->renderer , tex , NULL , &dest);
+    SDL_RenderCopy(this->renderer , tex , nullptr , &dest);
 }
 
 void SDLManager::clear() {
@@ -61,4 +54,13 @@ void SDLManager::cleanup() {
 
 SDL_Renderer *SDLManager::getRenderer() {
     return this->renderer;
+}
+
+void SDLManager::renderShip(Ship *ship) {
+    SDL_Rect dest;
+    dest.x = ship->pos.x;
+    dest.y = ship->pos.y;
+    dest.w = 50;
+    dest.h = 50;
+    SDL_RenderCopy(this->renderer , ship->getTexture() , NULL , &dest);
 }

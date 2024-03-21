@@ -8,9 +8,8 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_keyboard.h>
 #include <iostream>
-
-#define SCREEN_WIDTH 1200
-#define SCREEN_HEIGHT 900
+#include "Constants.h"
+#include "Ship.h"
 
 
 class SDLManager {
@@ -22,6 +21,7 @@ public:
     SDL_Renderer* getRenderer();
     void display();
     void renderTexture(SDL_Texture* tex);
+    void renderShip(Ship* ship);
     void clear();
     void cleanup();
 

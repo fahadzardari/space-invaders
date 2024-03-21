@@ -10,7 +10,7 @@ class Vector2f {
     public:
         Vector2f();
         Vector2f(float x_val , float y_val);
-    private:
+        void add(float x_val , float y_val);
         float x;
         float y;
 };

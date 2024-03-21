@@ -10,3 +10,8 @@ Vector2f::Vector2f() {
 }
 
 Vector2f::Vector2f(float x_val, float y_val) : x(x_val) , y(y_val) {}
+
+void Vector2f::add(float x_val, float y_val) {
+    x += x_val;
+    y += y_val;
+}

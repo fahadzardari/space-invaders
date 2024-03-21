@@ -9,9 +9,8 @@ void Application::run() {
     sdl.initialize();
     sdl.createWindow();
 
-    Ship p1 = *new Ship(sdl.getRenderer());
+    Ship playerShip = *new Ship(sdl.getRenderer());
     bool run = true;
-    const Uint8 *keystates = SDL_GetKeyboardState(NULL);
     int count = 0;
     while(run){
         SDL_Event ev;
@@ -21,14 +20,21 @@ void Application::run() {
                     run = false;
                     break;
                 case SDL_KEYDOWN:
-                    if(ev.key.keysym.sym == SDLK_UP){
-                            std::cout << "Up pressed " << count++ <<std::endl;
+                    switch (ev.key.keysym.sym) {
+                        case SDLK_RIGHT:
+                            std::cout << "Right pressed " << count++ <<std::endl;
+                            playerShip.moveRight();
+                            break;
+                        case SDLK_LEFT:
+                            std::cout << "Left pressed " << count++ <<std::endl;
+                            playerShip.moveLeft();
+                            break;
                     }
             }
         }
 
         sdl.clear();
-        sdl.renderTexture(p1.getTexture());
+        sdl.renderShip(&playerShip);
         sdl.display();
     }
     sdl.cleanup();
