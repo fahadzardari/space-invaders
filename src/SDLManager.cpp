@@ -15,7 +15,7 @@ void SDLManager::initialize() {
 
 void SDLManager::createWindow() {
     this->window = SDL_CreateWindow("Space Invaders" , SDL_WINDOWPOS_CENTERED , SDL_WINDOWPOS_CENTERED , SCREEN_WIDTH , SCREEN_HEIGHT , SDL_WINDOW_RESIZABLE);
-    this->renderer = SDL_CreateRenderer(this->window , -1 , 0);
+    this->renderer = SDL_CreateRenderer(this->window , -1 ,  SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     SDL_SetRenderDrawColor(this->renderer , 0 , 0 , 0 ,255);
 }
 
@@ -57,4 +57,8 @@ void SDLManager::display() {
 void SDLManager::cleanup() {
     SDL_DestroyWindow(this->window);
     SDL_DestroyRenderer(this->renderer);
+}
+
+SDL_Renderer *SDLManager::getRenderer() {
+    return this->renderer;
 }

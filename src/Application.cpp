@@ -3,15 +3,16 @@
 //
 
 #include "Application.h"
-#include <iostream>
+#include "Ship.h"
 
 void Application::run() {
     sdl.initialize();
     sdl.createWindow();
 
-    SDL_Texture* texture = sdl.loadTexture("../assets/ship.png");
-
+    Ship p1 = *new Ship(sdl.getRenderer());
     bool run = true;
+    const Uint8 *keystates = SDL_GetKeyboardState(NULL);
+    int count = 0;
     while(run){
         SDL_Event ev;
         while(SDL_PollEvent(&ev)){
@@ -19,10 +20,15 @@ void Application::run() {
                 case SDL_QUIT:
                     run = false;
                     break;
+                case SDL_KEYDOWN:
+                    if(ev.key.keysym.sym == SDLK_UP){
+                            std::cout << "Up pressed " << count++ <<std::endl;
+                    }
             }
         }
+
         sdl.clear();
-        sdl.renderTexture(texture);
+        sdl.renderTexture(p1.getTexture());
         sdl.display();
     }
     sdl.cleanup();

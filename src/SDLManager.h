@@ -6,6 +6,7 @@
 #define SPACE_INVADERS_SDLMANAGER_H
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_keyboard.h>
 #include <iostream>
 
 #define SCREEN_WIDTH 1200
@@ -18,6 +19,7 @@ public:
     void initialize();
     void createWindow();
     SDL_Texture* loadTexture(const char* filePath);
+    SDL_Renderer* getRenderer();
     void display();
     void renderTexture(SDL_Texture* tex);
     void clear();

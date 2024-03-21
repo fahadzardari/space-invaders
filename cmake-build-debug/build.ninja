@@ -77,6 +77,20 @@ build CMakeFiles/space_invaders.dir/src/Invader.cpp.o: CXX_COMPILER__space_invad
   OBJECT_DIR = CMakeFiles/space_invaders.dir
   OBJECT_FILE_DIR = CMakeFiles/space_invaders.dir/src
 
+build CMakeFiles/space_invaders.dir/src/Ship.cpp.o: CXX_COMPILER__space_invaders_unscanned_Debug /home/mrzardari/Documents/practice-learning/space-invaders/src/Ship.cpp || cmake_object_order_depends_target_space_invaders
+  DEP_FILE = CMakeFiles/space_invaders.dir/src/Ship.cpp.o.d
+  FLAGS = -g -std=gnu++20 -fdiagnostics-color=always
+  INCLUDES = -isystem /usr/include/SDL2
+  OBJECT_DIR = CMakeFiles/space_invaders.dir
+  OBJECT_FILE_DIR = CMakeFiles/space_invaders.dir/src
+
+build CMakeFiles/space_invaders.dir/src/Vector2f.cpp.o: CXX_COMPILER__space_invaders_unscanned_Debug /home/mrzardari/Documents/practice-learning/space-invaders/src/Vector2f.cpp || cmake_object_order_depends_target_space_invaders
+  DEP_FILE = CMakeFiles/space_invaders.dir/src/Vector2f.cpp.o.d
+  FLAGS = -g -std=gnu++20 -fdiagnostics-color=always
+  INCLUDES = -isystem /usr/include/SDL2
+  OBJECT_DIR = CMakeFiles/space_invaders.dir
+  OBJECT_FILE_DIR = CMakeFiles/space_invaders.dir/src
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target space_invaders
@@ -85,7 +99,7 @@ build CMakeFiles/space_invaders.dir/src/Invader.cpp.o: CXX_COMPILER__space_invad
 #############################################
 # Link the executable space_invaders
 
-build space_invaders: CXX_EXECUTABLE_LINKER__space_invaders_Debug CMakeFiles/space_invaders.dir/main.cpp.o CMakeFiles/space_invaders.dir/src/Application.cpp.o CMakeFiles/space_invaders.dir/src/SDLManager.cpp.o CMakeFiles/space_invaders.dir/src/Invader.cpp.o | /usr/lib/x86_64-linux-gnu/libSDL2.so
+build space_invaders: CXX_EXECUTABLE_LINKER__space_invaders_Debug CMakeFiles/space_invaders.dir/main.cpp.o CMakeFiles/space_invaders.dir/src/Application.cpp.o CMakeFiles/space_invaders.dir/src/SDLManager.cpp.o CMakeFiles/space_invaders.dir/src/Invader.cpp.o CMakeFiles/space_invaders.dir/src/Ship.cpp.o CMakeFiles/space_invaders.dir/src/Vector2f.cpp.o | /usr/lib/x86_64-linux-gnu/libSDL2.so
   FLAGS = -g
   LINK_LIBRARIES = -lSDL2_image  -lSDL2  /usr/lib/x86_64-linux-gnu/libSDL2.so
   OBJECT_DIR = CMakeFiles/space_invaders.dir

@@ -1,0 +1,8 @@
+# ninja log v5
+1	557	1711044182053403748	CMakeFiles/space_invaders.dir/src/Ship.cpp.o	68b272fd0c414792
+2	30	1710970959073343351	CMakeFiles/space_invaders.dir/src/Invader.cpp.o	a827afb53a3ec03
+0	17	1711044902755226135	build.ninja	213f3646cd799940
+521	592	1711044461493245344	space_invaders	5da2b37d0046809a
+0	751	1711044154134012783	CMakeFiles/space_invaders.dir/main.cpp.o	a1811840b245967b
+1	643	1711044154026015219	CMakeFiles/space_invaders.dir/src/SDLManager.cpp.o	8ba7866e03e28165
+0	520	1711044461421246043	CMakeFiles/space_invaders.dir/src/Application.cpp.o	a248023d4fecfd70
