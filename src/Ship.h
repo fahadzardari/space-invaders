@@ -13,6 +13,7 @@
 
 class Ship {
     public:
+        Ship();
         Ship(SDL_Renderer* renderer);
         SDL_Texture* getTexture();
         Vector2f pos;

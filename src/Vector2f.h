@@ -11,6 +11,7 @@ class Vector2f {
         Vector2f();
         Vector2f(float x_val , float y_val);
         void add(float x_val , float y_val);
+        void add(Vector2f v);
         float x;
         float y;
 };

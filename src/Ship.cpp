@@ -4,6 +4,8 @@
 
 #include "Ship.h"
 
+Ship::Ship() = default;
+
 Ship::Ship(SDL_Renderer* renderer) {
     texture = IMG_LoadTexture(renderer , "../assets/ship.png");
     pos = Vector2f(static_cast<float> (SCREEN_WIDTH / 2) , static_cast<float> (SCREEN_HEIGHT - 75) );
@@ -20,12 +22,12 @@ void Ship::moveRight() {
         if(pos.x == SCREEN_WIDTH - 50){
             return;
         }
-        pos.add(5 , 0);
+        pos.add(3 , 0);
 }
 
 void Ship::moveLeft() {
     if(pos.x == 0){
         return;
     }
-    pos.add(-5 , 0);
+    pos.add(-3 , 0);
 }
