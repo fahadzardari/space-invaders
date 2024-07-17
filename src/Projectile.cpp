@@ -15,7 +15,7 @@ void Projectile::updatePosition() {
     if(rect.y < 10) {
         this->~Projectile();
     }
-    rect.y -= 4;
+    rect.y -= 12;
     std::cout << "New Position y value is = " << rect.y << std::endl;
 }
 
