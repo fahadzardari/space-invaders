@@ -4,10 +4,10 @@
 
 #include "Projectile.h"
 Projectile::Projectile(SDL_Renderer* renderer, Vector2f shipPos) {
-    rect.x = static_cast<int>(shipPos.x + 25) ;
-    rect.y = static_cast<int>(shipPos.y - 25);
+    rect.x = static_cast<int>(shipPos.x + 20) ;
+    rect.y = static_cast<int>(shipPos.y - 20);
     rect.w = 2;
-    rect.h = 25;
+    rect.h = 20;
 
 }
 

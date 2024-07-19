@@ -22,6 +22,12 @@ add_executable(space_invaders main.cpp
         src/Constants.h
         src/Projectile.cpp
         src/Projectile.h
+        src/enemies/Enemy.h
+        src/enemies/Enemy.cpp
+        src/enemies/Invader.cpp
+        src/enemies/Invader.h
+        src/enemies/EnemyFactory.cpp
+        src/enemies/EnemyFactory.h
 )
 target_include_directories(space_invaders PRIVATE ${SDL2IMAGE_INCLUDE_DIRS})
 target_link_libraries(space_invaders PRIVATE ${SDL2IMAGE_LIBRARIES})

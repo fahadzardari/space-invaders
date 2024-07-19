@@ -7,21 +7,22 @@
 SDLManager::SDLManager() = default;
 
 void SDLManager::initialize() {
-    if(SDL_Init(SDL_INIT_VIDEO) > 0 )
+    if (SDL_Init(SDL_INIT_VIDEO) > 0)
         std::cout << "Initialization Error for SDL" << SDL_GetError() << std::endl;
-    if(!IMG_Init(IMG_INIT_PNG))
+    if (!IMG_Init(IMG_INIT_PNG))
         std::cout << "Initialization Error for SDL IMAGE" << SDL_GetError() << std::endl;
 }
 
 void SDLManager::createWindow() {
-    this->window = SDL_CreateWindow("Space Invaders" , SDL_WINDOWPOS_CENTERED , SDL_WINDOWPOS_CENTERED , SCREEN_WIDTH , SCREEN_HEIGHT , SDL_WINDOW_RESIZABLE);
-    this->renderer = SDL_CreateRenderer(this->window , -1 ,  SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    this->window = SDL_CreateWindow("Space Invaders", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH,
+                                    SCREEN_HEIGHT, SDL_WINDOW_RESIZABLE);
+    this->renderer = SDL_CreateRenderer(this->window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 }
 
-SDL_Texture* SDLManager::loadTexture(const char *filePath) {
-    SDL_Texture* texture = NULL;
-    texture = IMG_LoadTexture(this->renderer , filePath);
-    if(texture == NULL){
+SDL_Texture *SDLManager::loadTexture(const char *filePath) {
+    SDL_Texture *texture = NULL;
+    texture = IMG_LoadTexture(this->renderer, filePath);
+    if (texture == NULL) {
         std::cout << "Error Loading Texture Error: " << SDL_GetError() << std::endl;
     }
 
@@ -30,36 +31,27 @@ SDL_Texture* SDLManager::loadTexture(const char *filePath) {
 
 void SDLManager::renderTexture(SDL_Texture *tex) {
     SDL_Rect dest;
-    dest.x = SCREEN_WIDTH - (SCREEN_WIDTH/2);
+    dest.x = SCREEN_WIDTH - (SCREEN_WIDTH / 2);
     dest.y = SCREEN_HEIGHT - 50;
     dest.w = 50;
     dest.h = 50;
 
-    SDL_RenderCopy(this->renderer , tex , nullptr , &dest);
+    SDL_RenderCopy(this->renderer, tex, nullptr, &dest);
 }
 
 void SDLManager::clear() {
     SDL_RenderClear(this->renderer);
 }
 
-void SDLManager::render(){
+void SDLManager::render() {
+//    renderEnemy(&enemy);
+    renderEnemies();
     renderShip(&playerShip);
-    for(auto it = projectiles.begin() ; it != projectiles.end();){
-        Projectile& p = *it;
-        SDL_SetRenderDrawColor(this->renderer, 255, 255, 255, 255);
-        SDL_RenderFillRect(this->renderer, p.getRect());
-        p.updatePosition();
-        if(p.getRect()->y < 0 ){
-            p.~Projectile();
-            it = projectiles.erase(it);
-        }else{
-            it++;
-        }
-    }
+    renderProjectiles();
 }
 
 void SDLManager::display() {
-    SDL_SetRenderDrawColor(this->renderer , 0 , 0 , 0 ,255);
+    SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 255);
     SDL_RenderPresent(this->renderer);
 }
 
@@ -76,16 +68,96 @@ void SDLManager::renderShip(Ship *ship) {
     SDL_Rect dest;
     dest.x = static_cast<int> (ship->pos.x);
     dest.y = static_cast<int> (ship->pos.y);
-    dest.w = 50;
-    dest.h = 50;
-    SDL_RenderCopy(this->renderer , ship->getTexture() , NULL , &dest);
+    dest.w = 40;
+    dest.h = 40;
+    SDL_RenderCopy(this->renderer, ship->getTexture(), NULL, &dest);
+}
+
+void SDLManager::renderEnemy(Enemy *e) {
+    SDL_Rect dest;
+    dest.x = static_cast<int> (e->position.x);
+    dest.y = static_cast<int> (e->position.y);
+    dest.w = 40;
+    dest.h = 40;
+    SDL_RenderCopy(this->renderer, e->getTexture(), NULL, &dest);
+}
+
+void SDLManager::renderEnemies() {
+    for (auto it = enemies.begin(); it != enemies.end(); ++it) {
+        std::vector<Enemy> &row = *it;
+        for (auto i = row.begin(); i != row.end(); ++i) {
+            Enemy &e = *i;
+            renderEnemy(&e);
+        }
+    }
+}
+
+void SDLManager::renderProjectiles() {
+    for (auto it = projectiles.begin(); it != projectiles.end();) {
+        Projectile &p = *it;
+        SDL_SetRenderDrawColor(this->renderer, 255, 255, 255, 255);
+        SDL_RenderFillRect(this->renderer, p.getRect());
+        p.updatePosition();
+        if (p.getRect()->y < enemies_y) {
+            if(checkCollision(&p)){
+                p.~Projectile();
+                it = projectiles.erase(it);
+                continue;
+            }
+        }
+        if (p.getRect()->y < 0) {
+            p.~Projectile();
+            it = projectiles.erase(it);
+        } else {
+            it++;
+        }
+    }
 }
 
 void SDLManager::createProjectile() {
-    projectiles.push_back(*new Projectile(this->renderer , playerShip.pos));
+    projectiles.push_back(*new Projectile(this->renderer, playerShip.pos));
     std::cout << "Projectile created" << std::endl;
 }
 
 void SDLManager::createShip() {
     playerShip = *new Ship(this->getRenderer());
+}
+
+void SDLManager::createEnemies() {
+    enemy = EnemyFactory::createEnemy("invader", renderer, 80, 40);
+    float initial_y = 40;
+    for (int i = 0; i < 4; i++) {
+        float initial_x = 120;
+        std::vector<Enemy> v1;
+        std::cout << "Line " << i << std::endl;
+        for (int j = 0; j < 12; j++) {
+//            std::cout << "column " << j << std::endl;
+//            std::cout << "initial_y " << initial_y << std::endl;
+            v1.push_back(EnemyFactory::createEnemy("invader", renderer, initial_x, initial_y));
+            initial_x += 50;
+        }
+        initial_y += 50;
+        enemies.push_back(v1);
+    }
+}
+
+bool SDLManager::checkCollision(Projectile *p) {
+    const auto projectile_y = static_cast<float>( p->getRect()->y);
+    std::cout << "Projectile entered enemies range x = " << p->getRect()->x << " y = " << p->getRect()->y
+              << " enemies start x = " << enemies_x << " enemies end x = " << enemies_x + 50 * 12 << std::endl;
+    const auto index = floor((p->getRect()->x - enemies_x) / 50);
+    if (index < 0) return false;
+    std::cout << "Index to check = " << floor(index) << std::endl;
+    for (int i = enemies.size() - 1 ; i >= 0 ; i--) {
+        std::vector<Enemy> &row = enemies[i];
+        const float checker{row[index].position.y};
+        std::cout << " Checker y = " << checker << " bottom value = " << checker + 40 << std::endl;
+        if (checker < projectile_y && checker + 50 > projectile_y) {
+            std::cout << " COLLISION " << std::endl;
+//            Enemy* enemyPtr = &row[index];
+            row.erase(row.begin() + index);
+            return true;
+        }
+    }
+
 }

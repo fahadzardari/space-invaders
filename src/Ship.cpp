@@ -19,15 +19,18 @@ SDL_Texture *Ship::getTexture() {
 }
 
 void Ship::moveRight() {
-        if(pos.x == SCREEN_WIDTH - 50){
+        std::cout<<"x= " << pos.x << std::endl;
+        if(pos.x >= SCREEN_WIDTH - 120){
+            std::cout<<"limit reached";
             return;
         }
-        pos.add(3 , 0);
+        pos.add(8 , 0);
 }
 
 void Ship::moveLeft() {
-    if(pos.x == 0){
+    std::cout<<"x= " << pos.x << std::endl;
+    if(pos.x <= 80){
         return;
     }
-    pos.add(-3 , 0);
+    pos.add(-8 , 0);
 }

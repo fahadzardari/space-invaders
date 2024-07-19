@@ -12,7 +12,9 @@
 #include "Constants.h"
 #include "Ship.h"
 #include "Projectile.h"
-
+#include "enemies/Enemy.h"
+#include "enemies/EnemyFactory.h"
+#include <cmath>
 
 
 class SDLManager {
@@ -26,16 +28,25 @@ public:
     SDL_Renderer* getRenderer();
     void display();
     void renderTexture(SDL_Texture* tex);
+    void renderProjectiles();
+    void renderEnemies();
     void renderShip(Ship* ship);
     void clear();
     void cleanup();
     void render();
     Ship playerShip;
+    void createEnemies();
+    Enemy enemy;
+    void renderEnemy(Enemy *enemy);
+    bool checkCollision(Projectile *p);
+    float enemies_x ;
+    float enemies_y ;
 
 private:
     SDL_Window *window;
     SDL_Renderer *renderer;
     std::vector<Projectile> projectiles;
+    std::vector<std::vector<Enemy>> enemies;
 };
 
 
