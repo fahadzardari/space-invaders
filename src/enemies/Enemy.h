@@ -13,9 +13,13 @@
 
 class Enemy{
     public:
+        static float speed;
         Enemy();
+        virtual ~Enemy();
         virtual void moveRight();
         virtual void moveLeft();
+        virtual  void moveDown();
+        static void increaseSpeed();
         Vector2f position;
         SDL_Texture * getTexture();
 

@@ -13,10 +13,10 @@ Invader::Invader(float x, float y, SDL_Renderer *renderer) {
         }
 }
 
-void Invader::moveRight() {
-    Enemy::moveRight();
+void Invader::moveRight()  {
+     position.x += 4;
 }
 
-void Invader::moveLeft() {
-    Enemy::moveLeft();
+void Invader::moveLeft()  {
+    position.x -= 4;
 }

@@ -45,6 +45,7 @@ void SDLManager::clear() {
 
 void SDLManager::render() {
 //    renderEnemy(&enemy);
+    moveEnemies();
     renderEnemies();
     renderShip(&playerShip);
     renderProjectiles();
@@ -99,7 +100,7 @@ void SDLManager::renderProjectiles() {
         SDL_RenderFillRect(this->renderer, p.getRect());
         p.updatePosition();
         if (p.getRect()->y < enemies_y) {
-            if(checkCollision(&p)){
+            if (checkCollision(&p)) {
                 p.~Projectile();
                 it = projectiles.erase(it);
                 continue;
@@ -124,10 +125,9 @@ void SDLManager::createShip() {
 }
 
 void SDLManager::createEnemies() {
-    enemy = EnemyFactory::createEnemy("invader", renderer, 80, 40);
     float initial_y = 40;
     for (int i = 0; i < 4; i++) {
-        float initial_x = 120;
+        float initial_x = 80;
         std::vector<Enemy> v1;
         std::cout << "Line " << i << std::endl;
         for (int j = 0; j < 12; j++) {
@@ -141,23 +141,65 @@ void SDLManager::createEnemies() {
     }
 }
 
-bool SDLManager::checkCollision(Projectile *p) {
-    const auto projectile_y = static_cast<float>( p->getRect()->y);
-    std::cout << "Projectile entered enemies range x = " << p->getRect()->x << " y = " << p->getRect()->y
-              << " enemies start x = " << enemies_x << " enemies end x = " << enemies_x + 50 * 12 << std::endl;
-    const auto index = floor((p->getRect()->x - enemies_x) / 50);
-    if (index < 0) return false;
-    std::cout << "Index to check = " << floor(index) << std::endl;
-    for (int i = enemies.size() - 1 ; i >= 0 ; i--) {
+void SDLManager::moveEnemies() {
+    bool temp = enemiesDirection;
+    bool moveDown = false;
+    for (int i = enemies.size() - 1; i >= 0; i--) {
         std::vector<Enemy> &row = enemies[i];
-        const float checker{row[index].position.y};
-        std::cout << " Checker y = " << checker << " bottom value = " << checker + 40 << std::endl;
-        if (checker < projectile_y && checker + 50 > projectile_y) {
-            std::cout << " COLLISION " << std::endl;
-//            Enemy* enemyPtr = &row[index];
-            row.erase(row.begin() + index);
-            return true;
+        for (Enemy &e: row) {
+            if (e.position.x + 40 + 1 > enemies_x_end) {
+                temp = false;
+                moveDown = true;
+                enemies_y += 10;
+                break;
+            }
+            if (e.position.x - 1 < enemies_x) {
+                temp = true;
+                break;
+            }
         }
     }
+    enemiesDirection = temp;
+    for (int i = enemies.size() - 1; i >= 0; i--) {
+        std::vector<Enemy> &row = enemies[i];
+        for (Enemy &e: row) {
+            if (enemiesDirection) {
+                e.moveRight();
+            } else {
+                e.moveLeft();
+            }
+            if(moveDown){
+                e.moveDown();
+            }
+        }
+    }
+}
+
+bool SDLManager::checkCollision(Projectile *p) {
+    const auto projectile_y = static_cast<float>( p->getRect()->y);
+    const auto projectile_x = static_cast<float>( p->getRect()->x);
+    std::cout << "Projectile entered enemies range x = " << p->getRect()->x << " y = " << p->getRect()->y
+              << " enemies start x = " << enemies_x << " enemies end x = " << enemies_x + 50 * 12 << std::endl;
+//    const auto index = floor((p->getRect()->x - enemies_x) / 50);
+//    if (index < 0) return false;
+    for (int i = enemies.size() - 1; i >= 0; i--) {
+        std::vector<Enemy> &row = enemies[i];
+        for (auto it = row.begin(); it != row.end(); ++it) {
+            Enemy &enemy = *it;
+            const Vector2f checker{enemy.position};
+            std::cout << " Checker y = " << checker.y << " bottom value = " << checker.y + 40 << " Checker x = "
+                      << checker.x << " checker x end = " << checker.x + 40 << std::endl;
+            if ((checker.y < projectile_y && checker.y + 50 > projectile_y) &&
+                (checker.x < projectile_x && checker.x + 40 > projectile_x)) {
+                std::cout << " COLLISION " << std::endl;
+                Enemy::increaseSpeed();
+                enemy.~Enemy();
+                row.erase(it);
+
+                return true;
+            }
+        }
+    }
+    return false;
 
 }

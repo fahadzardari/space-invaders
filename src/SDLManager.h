@@ -36,10 +36,14 @@ public:
     void render();
     Ship playerShip;
     void createEnemies();
+    void moveEnemies();
+    bool enemiesDirection;
+    int itereations;
     Enemy enemy;
     void renderEnemy(Enemy *enemy);
     bool checkCollision(Projectile *p);
     float enemies_x ;
+    float enemies_x_end;
     float enemies_y ;
 
 private:
