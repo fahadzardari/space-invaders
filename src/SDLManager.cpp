@@ -130,11 +130,11 @@ void SDLManager::createEnemies() {
         float initial_x = 80;
         std::vector<Enemy> v1;
         std::cout << "Line " << i << std::endl;
-        for (int j = 0; j < 12; j++) {
+        for (int j = 0; j < 8; j++) {
 //            std::cout << "column " << j << std::endl;
 //            std::cout << "initial_y " << initial_y << std::endl;
             v1.push_back(EnemyFactory::createEnemy("invader", renderer, initial_x, initial_y));
-            initial_x += 50;
+            initial_x += 70;
         }
         initial_y += 50;
         enemies.push_back(v1);
@@ -173,6 +173,7 @@ void SDLManager::moveEnemies() {
             }
         }
     }
+    if(moveDown) Enemy::increaseSpeed();
 }
 
 bool SDLManager::checkCollision(Projectile *p) {
