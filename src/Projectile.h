@@ -11,7 +11,8 @@
 
 class Projectile {
 public:
-    Projectile(SDL_Renderer* renderer , Vector2f shipPos);
+    Projectile(SDL_Renderer* renderer , Vector2f shipPos , int spd);
+    int speed;
     virtual ~Projectile();
     const SDL_Rect * getRect();
     void updatePosition();

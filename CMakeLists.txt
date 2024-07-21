@@ -13,8 +13,6 @@ add_executable(space_invaders main.cpp
         src/Application.h
         src/SDLManager.cpp
         src/SDLManager.h
-        src/Invader.cpp
-        src/Invader.h
         src/Ship.cpp
         src/Ship.h
         src/Vector2f.cpp

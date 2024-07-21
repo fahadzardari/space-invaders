@@ -15,6 +15,10 @@
 #include "enemies/Enemy.h"
 #include "enemies/EnemyFactory.h"
 #include <cmath>
+#include <chrono>
+#include <unordered_map>
+#include <cmath>
+#include <random>
 
 
 class SDLManager {
@@ -42,15 +46,24 @@ public:
     Enemy enemy;
     void renderEnemy(Enemy *enemy);
     bool checkCollision(Projectile *p);
+    bool checkCollisionEnemyProjectile(Projectile *p);
     float enemies_x ;
     float enemies_x_end;
     float enemies_y ;
+    std::chrono::time_point<std::chrono::steady_clock> lastProjectile;
+    void fireEnemyProjectile();
+    int getRandomIndex();
+    int playersLives;
 
 private:
     SDL_Window *window;
     SDL_Renderer *renderer;
     std::vector<Projectile> projectiles;
     std::vector<std::vector<Enemy>> enemies;
+    std::vector<Projectile> enemyProjectiles;
+
+    std::vector<Enemy*> enemyMap;
+//    std::unordered_map<int , Enemy> enemyMap;
 };
 
 

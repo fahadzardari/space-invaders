@@ -15,6 +15,7 @@ class Enemy{
     public:
         static float speed;
         Enemy();
+        Enemy(float x, float y, SDL_Renderer *renderer ,int type);
         virtual ~Enemy();
         virtual void moveRight();
         virtual void moveLeft();

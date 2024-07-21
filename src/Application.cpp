@@ -16,7 +16,7 @@ void Application::run() {
     sdl.createShip();
     sdl.createEnemies();
     sdl.enemiesDirection = true;
-    sdl.itereations = 0;
+    sdl.playersLives = 3;
     bool run = true;
     int count = 0;
     bool rightKeyPressed = false;

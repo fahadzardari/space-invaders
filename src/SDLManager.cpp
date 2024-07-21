@@ -4,7 +4,10 @@
 
 #include "SDLManager.h"
 
-SDLManager::SDLManager() = default;
+
+SDLManager::SDLManager() {
+    lastProjectile = std::chrono::steady_clock::now();
+};
 
 void SDLManager::initialize() {
     if (SDL_Init(SDL_INIT_VIDEO) > 0)
@@ -46,8 +49,9 @@ void SDLManager::clear() {
 void SDLManager::render() {
 //    renderEnemy(&enemy);
     moveEnemies();
+    fireEnemyProjectile();
     renderEnemies();
-    renderShip(&playerShip);
+    if(playersLives > 0) renderShip(&playerShip);
     renderProjectiles();
 }
 
@@ -113,10 +117,29 @@ void SDLManager::renderProjectiles() {
             it++;
         }
     }
+    for (auto it = enemyProjectiles.begin(); it != enemyProjectiles.end();) {
+        Projectile &p = *it;
+        SDL_SetRenderDrawColor(this->renderer, 255, 255, 255, 255);
+        SDL_RenderFillRect(this->renderer, p.getRect());
+        p.updatePosition();
+        if (p.getRect()->y > 100) {
+            if (checkCollisionEnemyProjectile(&p)) {
+                p.~Projectile();
+                it = enemyProjectiles.erase(it);
+                continue;
+            }
+        }
+        if (p.getRect()->y > SCREEN_HEIGHT) {
+            p.~Projectile();
+            it = enemyProjectiles.erase(it);
+        } else {
+            it++;
+        }
+    }
 }
 
 void SDLManager::createProjectile() {
-    projectiles.push_back(*new Projectile(this->renderer, playerShip.pos));
+    projectiles.push_back(*new Projectile(this->renderer, playerShip.pos, 12));
     std::cout << "Projectile created" << std::endl;
 }
 
@@ -126,18 +149,26 @@ void SDLManager::createShip() {
 
 void SDLManager::createEnemies() {
     float initial_y = 40;
-    for (int i = 0; i < 4; i++) {
+    int type = 1;
+    for (int i = 0; i < 5; i++) {
+        if (i == 0) type = 1;
+        if (i == 1 || i == 2) type = 2;
+        if (i == 3 || i == 4) type = 3;
         float initial_x = 80;
         std::vector<Enemy> v1;
-        std::cout << "Line " << i << std::endl;
-        for (int j = 0; j < 8; j++) {
-//            std::cout << "column " << j << std::endl;
-//            std::cout << "initial_y " << initial_y << std::endl;
-            v1.push_back(EnemyFactory::createEnemy("invader", renderer, initial_x, initial_y));
-            initial_x += 70;
+        for (int j = 0; j < 12; j++) {
+            Enemy e = Enemy(initial_x, initial_y, renderer, type);
+            v1.push_back(e);
+            e.~Enemy();
+            initial_x += 45;
         }
         initial_y += 50;
         enemies.push_back(v1);
+    }
+    for (auto& row : enemies) {
+        for (auto& enemy : row) {
+            enemyMap.push_back(&enemy);
+        }
     }
 }
 
@@ -168,19 +199,18 @@ void SDLManager::moveEnemies() {
             } else {
                 e.moveLeft();
             }
-            if(moveDown){
+            if (moveDown) {
                 e.moveDown();
             }
         }
     }
-    if(moveDown) Enemy::increaseSpeed();
 }
 
 bool SDLManager::checkCollision(Projectile *p) {
     const auto projectile_y = static_cast<float>( p->getRect()->y);
     const auto projectile_x = static_cast<float>( p->getRect()->x);
-    std::cout << "Projectile entered enemies range x = " << p->getRect()->x << " y = " << p->getRect()->y
-              << " enemies start x = " << enemies_x << " enemies end x = " << enemies_x + 50 * 12 << std::endl;
+//    std::cout << "Projectile entered enemies range x = " << p->getRect()->x << " y = " << p->getRect()->y
+//              << " enemies start x = " << enemies_x << " enemies end x = " << enemies_x + 50 * 12 << std::endl;
 //    const auto index = floor((p->getRect()->x - enemies_x) / 50);
 //    if (index < 0) return false;
     for (int i = enemies.size() - 1; i >= 0; i--) {
@@ -188,8 +218,8 @@ bool SDLManager::checkCollision(Projectile *p) {
         for (auto it = row.begin(); it != row.end(); ++it) {
             Enemy &enemy = *it;
             const Vector2f checker{enemy.position};
-            std::cout << " Checker y = " << checker.y << " bottom value = " << checker.y + 40 << " Checker x = "
-                      << checker.x << " checker x end = " << checker.x + 40 << std::endl;
+//            std::cout << " Checker y = " << checker.y << " bottom value = " << checker.y + 40 << " Checker x = "
+//                      << checker.x << " checker x end = " << checker.x + 40 << std::endl;
             if ((checker.y < projectile_y && checker.y + 50 > projectile_y) &&
                 (checker.x < projectile_x && checker.x + 40 > projectile_x)) {
                 std::cout << " COLLISION " << std::endl;
@@ -203,4 +233,59 @@ bool SDLManager::checkCollision(Projectile *p) {
     }
     return false;
 
+}
+
+bool SDLManager::checkCollisionEnemyProjectile(Projectile *p) {
+    const auto projectile_y = static_cast<float>( p->getRect()->y);
+    const auto projectile_x = static_cast<float>( p->getRect()->x);
+//    std::cout << "Projectile entered enemies range x = " << p->getRect()->x << " y = " << p->getRect()->y
+//              << " enemies start x = " << enemies_x << " enemies end x = " << enemies_x + 50 * 12 << std::endl;
+//    const auto index = floor((p->getRect()->x - enemies_x) / 50);
+//    if (index < 0) return false;
+    Vector2f checker = playerShip.pos;
+    if ((checker.y < projectile_y && checker.y + 50 > projectile_y) &&
+        (checker.x < projectile_x && checker.x + 40 > projectile_x)) {
+        std::cout << " COLLISION " << std::endl;
+        if(playersLives > 0){
+            playerShip = Ship(renderer);
+            playersLives--;
+        }
+        return true;
+    }
+    return false;
+
+}
+
+
+
+void SDLManager::fireEnemyProjectile() {
+    auto currentTime = std::chrono::steady_clock::now();
+    const std::chrono::duration<double> elapsed_seconds{currentTime - lastProjectile};
+    const std::chrono::duration<double> duration{0.5};
+    if (elapsed_seconds > duration) {
+        int index = getRandomIndex();
+        if (index == -1) {
+            std::cout << "No enemies available to fire." << std::endl;
+            return;
+        }
+        std::cout << "INDEX RANDOM " << index << " Enemy x = " << enemyMap[index]->position.x << " Enemy y = " << enemyMap[index]->position.y << std::endl;
+        enemyProjectiles.push_back(*new Projectile(this->renderer, Vector2f(enemyMap[index]->position.x , enemyMap[index]->position.y + 60) , -12));
+        lastProjectile = currentTime;
+    }
+}
+
+int SDLManager::getRandomIndex() {
+    // Ensure enemyMap is not empty
+    if (enemyMap.empty()) {
+        return -1; // or handle the empty case as needed
+    }
+
+    // Create a random number generator
+    std::random_device rd;
+    std::mt19937 gen(rd());
+
+    // Define the range
+    std::uniform_int_distribution<> distr(0, enemyMap.size() - 1);
+
+    return distr(gen);
 }
