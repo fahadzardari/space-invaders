@@ -4,8 +4,10 @@ project(space_invaders)
 set(CMAKE_CXX_STANDARD 20)
 find_package(SDL2 REQUIRED SDL2)
 
+
 find_package(PkgConfig REQUIRED)
 pkg_search_module(SDL2IMAGE REQUIRED SDL2_image>=2.0.0)
+pkg_check_modules(SDL2_TTF REQUIRED SDL2_ttf)
 
 
 add_executable(space_invaders main.cpp
@@ -27,8 +29,8 @@ add_executable(space_invaders main.cpp
         src/enemies/EnemyFactory.cpp
         src/enemies/EnemyFactory.h
 )
-target_include_directories(space_invaders PRIVATE ${SDL2IMAGE_INCLUDE_DIRS})
-target_link_libraries(space_invaders PRIVATE ${SDL2IMAGE_LIBRARIES})
-target_link_libraries(space_invaders
-        PRIVATE SDL2::SDL2
-)
+# Include directories
+target_include_directories(space_invaders PRIVATE ${SDL2_INCLUDE_DIRS} ${SDL2_TTF_INCLUDE_DIRS} ${SDL2IMAGE_INCLUDE_DIRS})
+
+# Link libraries
+target_link_libraries(space_invaders PRIVATE ${SDL2_LIBRARIES} ${SDL2_TTF_LIBRARIES} ${SDL2IMAGE_LIBRARIES})

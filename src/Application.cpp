@@ -39,7 +39,7 @@ void Application::run() {
                             std::cout << "Left key pressed" << std::endl;
                             leftKeyPressed = true;
                             break;
-                        case SDLK_f:
+                        case SDLK_UP:
                             std::cout << "Fire (f) pressed " << count++ << std::endl;
                             auto currentTime = std::chrono::steady_clock::now();
                             const std::chrono::duration<double> elapsed_seconds{currentTime - lastFired};

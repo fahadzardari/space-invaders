@@ -36,7 +36,7 @@ void Enemy::moveDown() {
 }
 
 void Enemy::increaseSpeed() {
-    speed += 0.1;
+    speed += 0.05;
 }
 
 Enemy::~Enemy() = default;

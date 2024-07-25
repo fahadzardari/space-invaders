@@ -8,7 +8,7 @@ Ship::Ship() = default;
 
 Ship::Ship(SDL_Renderer* renderer) {
     texture = IMG_LoadTexture(renderer , "../assets/ship-fancy.png");
-    pos = Vector2f(static_cast<float> (SCREEN_WIDTH / 2) , static_cast<float> (SCREEN_HEIGHT - 75) );
+    pos = Vector2f(static_cast<float> (SCREEN_WIDTH / 2) , static_cast<float> (SCREEN_HEIGHT - 150) );
     if(texture == NULL){
         std::cout << "Error Loading Texture Error: " << SDL_GetError() << std::endl;
     }

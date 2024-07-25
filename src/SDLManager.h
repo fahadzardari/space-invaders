@@ -19,7 +19,8 @@
 #include <unordered_map>
 #include <cmath>
 #include <random>
-
+#include <SDL2/SDL_ttf.h>
+//#include FT_FREETYPE_H
 
 class SDLManager {
 public:
@@ -41,6 +42,7 @@ public:
     Ship playerShip;
     void createEnemies();
     void moveEnemies();
+    void initializeFont();
     bool enemiesDirection;
     int itereations;
     Enemy enemy;
@@ -52,8 +54,11 @@ public:
     float enemies_y ;
     std::chrono::time_point<std::chrono::steady_clock> lastProjectile;
     void fireEnemyProjectile();
-    int getRandomIndex();
+    static int getRandomIndex(int size);
     int playersLives;
+    TTF_Font *font;
+    void renderFont();
+    void renderPlayerLives();
 
 private:
     SDL_Window *window;
@@ -61,7 +66,6 @@ private:
     std::vector<Projectile> projectiles;
     std::vector<std::vector<Enemy>> enemies;
     std::vector<Projectile> enemyProjectiles;
-
     std::vector<Enemy*> enemyMap;
 //    std::unordered_map<int , Enemy> enemyMap;
 };

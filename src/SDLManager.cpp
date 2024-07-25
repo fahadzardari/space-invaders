@@ -5,6 +5,8 @@
 #include "SDLManager.h"
 
 
+SDL_Renderer *getRenderer();
+
 SDLManager::SDLManager() {
     lastProjectile = std::chrono::steady_clock::now();
 };
@@ -14,6 +16,7 @@ void SDLManager::initialize() {
         std::cout << "Initialization Error for SDL" << SDL_GetError() << std::endl;
     if (!IMG_Init(IMG_INIT_PNG))
         std::cout << "Initialization Error for SDL IMAGE" << SDL_GetError() << std::endl;
+    initializeFont();
 }
 
 void SDLManager::createWindow() {
@@ -48,10 +51,12 @@ void SDLManager::clear() {
 
 void SDLManager::render() {
 //    renderEnemy(&enemy);
+    renderPlayerLives();
+    renderFont();
     moveEnemies();
     fireEnemyProjectile();
     renderEnemies();
-    if(playersLives > 0) renderShip(&playerShip);
+    if (playersLives > 0) renderShip(&playerShip);
     renderProjectiles();
 }
 
@@ -75,7 +80,7 @@ void SDLManager::renderShip(Ship *ship) {
     dest.y = static_cast<int> (ship->pos.y);
     dest.w = 40;
     dest.h = 40;
-    SDL_RenderCopy(this->renderer, ship->getTexture(), NULL, &dest);
+    SDL_RenderCopy(this->renderer, ship->getTexture(), nullptr, &dest);
 }
 
 void SDLManager::renderEnemy(Enemy *e) {
@@ -103,14 +108,13 @@ void SDLManager::renderProjectiles() {
         SDL_SetRenderDrawColor(this->renderer, 255, 255, 255, 255);
         SDL_RenderFillRect(this->renderer, p.getRect());
         p.updatePosition();
-        if (p.getRect()->y < enemies_y) {
-            if (checkCollision(&p)) {
-                p.~Projectile();
-                it = projectiles.erase(it);
-                continue;
-            }
+        if (checkCollision(&p)) {
+            p.~Projectile();
+            it = projectiles.erase(it);
+            continue;
         }
-        if (p.getRect()->y < 0) {
+
+        if (p.getRect()->y < 80) {
             p.~Projectile();
             it = projectiles.erase(it);
         } else {
@@ -129,7 +133,7 @@ void SDLManager::renderProjectiles() {
                 continue;
             }
         }
-        if (p.getRect()->y > SCREEN_HEIGHT) {
+        if (p.getRect()->y > SCREEN_HEIGHT - 80) {
             p.~Projectile();
             it = enemyProjectiles.erase(it);
         } else {
@@ -148,7 +152,7 @@ void SDLManager::createShip() {
 }
 
 void SDLManager::createEnemies() {
-    float initial_y = 40;
+    float initial_y = 180;
     int type = 1;
     for (int i = 0; i < 5; i++) {
         if (i == 0) type = 1;
@@ -165,8 +169,8 @@ void SDLManager::createEnemies() {
         initial_y += 50;
         enemies.push_back(v1);
     }
-    for (auto& row : enemies) {
-        for (auto& enemy : row) {
+    for (auto &row: enemies) {
+        for (auto &enemy: row) {
             enemyMap.push_back(&enemy);
         }
     }
@@ -211,7 +215,12 @@ bool SDLManager::checkCollision(Projectile *p) {
     const auto projectile_x = static_cast<float>( p->getRect()->x);
 //    std::cout << "Projectile entered enemies range x = " << p->getRect()->x << " y = " << p->getRect()->y
 //              << " enemies start x = " << enemies_x << " enemies end x = " << enemies_x + 50 * 12 << std::endl;
-//    const auto index = floor((p->getRect()->x - enemies_x) / 50);
+//    const auto index = floor((p->getRect()->x - enemies_x) / 50);                auto itMap = std::find(enemyMap.begin(), enemyMap.end(), &enemy);
+//                if (itMap != enemyMap.end()) {
+//                    enemyMap.erase(itMap);
+//                } else {
+//                    std::cerr << "Warning: Enemy pointer not found in enemyMap" << std::endl;
+//                }
 //    if (index < 0) return false;
     for (int i = enemies.size() - 1; i >= 0; i--) {
         std::vector<Enemy> &row = enemies[i];
@@ -224,15 +233,22 @@ bool SDLManager::checkCollision(Projectile *p) {
                 (checker.x < projectile_x && checker.x + 40 > projectile_x)) {
                 std::cout << " COLLISION " << std::endl;
                 Enemy::increaseSpeed();
+//                enemyMap.erase(std::remove(enemyMap.begin() , enemyMap.end() , &enemy) , enemyMap.end());
+                // Print enemy pointer being removed for debugging
+                std::cout << "Removing enemy at: " << &enemy << std::endl;
+
+                // Ensure enemyMap has valid pointers
+//ff
                 enemy.~Enemy();
                 row.erase(it);
-
+                if (row.empty()) {
+                    enemies.erase(enemies.begin() + i);
+                }
                 return true;
             }
         }
     }
     return false;
-
 }
 
 bool SDLManager::checkCollisionEnemyProjectile(Projectile *p) {
@@ -246,7 +262,7 @@ bool SDLManager::checkCollisionEnemyProjectile(Projectile *p) {
     if ((checker.y < projectile_y && checker.y + 50 > projectile_y) &&
         (checker.x < projectile_x && checker.x + 40 > projectile_x)) {
         std::cout << " COLLISION " << std::endl;
-        if(playersLives > 0){
+        if (playersLives > 0) {
             playerShip = Ship(renderer);
             playersLives--;
         }
@@ -256,36 +272,92 @@ bool SDLManager::checkCollisionEnemyProjectile(Projectile *p) {
 
 }
 
-
-
 void SDLManager::fireEnemyProjectile() {
     auto currentTime = std::chrono::steady_clock::now();
     const std::chrono::duration<double> elapsed_seconds{currentTime - lastProjectile};
-    const std::chrono::duration<double> duration{0.5};
-    if (elapsed_seconds > duration) {
-        int index = getRandomIndex();
-        if (index == -1) {
+    const std::chrono::duration<double> duration{1};
+    if (elapsed_seconds > duration && !enemies.empty()) {
+        int row = getRandomIndex(enemies.size());
+        while (enemies[row].empty()) {
+            row = getRandomIndex(enemies.size());
+        }
+        if (row == -1 || row > enemyMap.size() - 1) {
             std::cout << "No enemies available to fire." << std::endl;
             return;
         }
-        std::cout << "INDEX RANDOM " << index << " Enemy x = " << enemyMap[index]->position.x << " Enemy y = " << enemyMap[index]->position.y << std::endl;
-        enemyProjectiles.push_back(*new Projectile(this->renderer, Vector2f(enemyMap[index]->position.x , enemyMap[index]->position.y + 60) , -12));
+        int column = getRandomIndex(enemies[row].size());
+
+
+        std::cout << "INDEX RANDOM " << row << " COlumn = " << column << " Enemy x = "
+                  << enemies[row][column].position.x << " Enemy y = "
+                  << enemies[row][column].position.y << " Enemy Map size = " << enemyMap.size() << std::endl;
+        enemyProjectiles.push_back(
+                *new Projectile(this->renderer,
+                                Vector2f(enemies[row][column].position.x, enemies[row][column].position.y + 60),
+                                -12));
         lastProjectile = currentTime;
     }
 }
 
-int SDLManager::getRandomIndex() {
+int SDLManager::getRandomIndex(int size) {
     // Ensure enemyMap is not empty
-    if (enemyMap.empty()) {
-        return -1; // or handle the empty case as needed
-    }
+//    if (enemyMap.empty()) {
+//        return -1; // or handle the empty case as needed
+//    }
 
     // Create a random number generator
     std::random_device rd;
     std::mt19937 gen(rd());
 
     // Define the range
-    std::uniform_int_distribution<> distr(0, enemyMap.size() - 1);
+    std::uniform_int_distribution<> distr(0, size - 1);
 
     return distr(gen);
+}
+
+void SDLManager::renderPlayerLives() {
+    SDL_Texture *tex = IMG_LoadTexture(getRenderer(), "../assets/ship-fancy.png");
+    SDL_Rect dest;
+    dest.w = 40;
+    dest.h = 40;
+    dest.y = SCREEN_HEIGHT - 60;
+    for (int i = 1; i <= playersLives; i++) {
+        dest.x = 80 + 40 * i + 40;
+        SDL_RenderCopy(this->renderer, tex, nullptr, &dest);
+    }
+    SDL_Rect line;
+    line.w = SCREEN_WIDTH - 160;
+    line.h = 2;
+    line.x = 80;
+    line.y = SCREEN_HEIGHT - 70;
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_RenderFillRect(renderer, &line);
+    SDL_DestroyTexture(tex);
+}
+
+void SDLManager::initializeFont() {
+    if (TTF_Init() == -1) {
+        std::cout << "Could not initialize SDL2_ttf, error: " << TTF_GetError() << std::endl;
+    } else {
+        std::cout << "SDL2_ttf system ready to go!" << std::endl;
+    }
+    font = TTF_OpenFont("../assets/Roboto-Regular.ttf", 20);
+    // Confirm that it was loaded
+    if (font == nullptr) {
+        std::cout << "Could not load font" << std::endl;
+        exit(1);
+    }
+}
+
+
+void SDLManager::renderFont() {
+    SDL_Surface *surfaceText = TTF_RenderText_Solid(font, (std::to_string(playersLives)).c_str(), {255, 255, 255});
+    SDL_Texture *textureText = SDL_CreateTextureFromSurface(renderer, surfaceText);
+    SDL_Rect rectangle;
+    rectangle.x = 80;
+    rectangle.y = 10;
+    rectangle.w = 40;
+    rectangle.h = 40;
+    SDL_RenderCopy(renderer, textureText, nullptr, &rectangle);
+    SDL_FreeSurface(surfaceText);
 }
