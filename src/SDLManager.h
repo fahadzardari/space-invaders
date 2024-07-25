@@ -44,7 +44,6 @@ public:
     void moveEnemies();
     void initializeFont();
     bool enemiesDirection;
-    int itereations;
     Enemy enemy;
     void renderEnemy(Enemy *enemy);
     bool checkCollision(Projectile *p);
@@ -56,18 +55,18 @@ public:
     void fireEnemyProjectile();
     static int getRandomIndex(int size);
     int playersLives;
+    int currentScore;
+    int highestScore;
     TTF_Font *font;
     void renderFont();
     void renderPlayerLives();
-
+    void updateScore(int type);
 private:
     SDL_Window *window;
     SDL_Renderer *renderer;
     std::vector<Projectile> projectiles;
     std::vector<std::vector<Enemy>> enemies;
     std::vector<Projectile> enemyProjectiles;
-    std::vector<Enemy*> enemyMap;
-//    std::unordered_map<int , Enemy> enemyMap;
 };
 
 

@@ -17,6 +17,13 @@ void SDLManager::initialize() {
     if (!IMG_Init(IMG_INIT_PNG))
         std::cout << "Initialization Error for SDL IMAGE" << SDL_GetError() << std::endl;
     initializeFont();
+    this->enemies_x=80;
+    this->enemies_x_end=720;
+    this->enemies_y= 240;
+    this->enemiesDirection = true;
+    this->playersLives = 3;
+    this->highestScore = 0;
+    this->currentScore = 0;
 }
 
 void SDLManager::createWindow() {
@@ -169,11 +176,6 @@ void SDLManager::createEnemies() {
         initial_y += 50;
         enemies.push_back(v1);
     }
-    for (auto &row: enemies) {
-        for (auto &enemy: row) {
-            enemyMap.push_back(&enemy);
-        }
-    }
 }
 
 void SDLManager::moveEnemies() {
@@ -213,32 +215,15 @@ void SDLManager::moveEnemies() {
 bool SDLManager::checkCollision(Projectile *p) {
     const auto projectile_y = static_cast<float>( p->getRect()->y);
     const auto projectile_x = static_cast<float>( p->getRect()->x);
-//    std::cout << "Projectile entered enemies range x = " << p->getRect()->x << " y = " << p->getRect()->y
-//              << " enemies start x = " << enemies_x << " enemies end x = " << enemies_x + 50 * 12 << std::endl;
-//    const auto index = floor((p->getRect()->x - enemies_x) / 50);                auto itMap = std::find(enemyMap.begin(), enemyMap.end(), &enemy);
-//                if (itMap != enemyMap.end()) {
-//                    enemyMap.erase(itMap);
-//                } else {
-//                    std::cerr << "Warning: Enemy pointer not found in enemyMap" << std::endl;
-//                }
-//    if (index < 0) return false;
     for (int i = enemies.size() - 1; i >= 0; i--) {
         std::vector<Enemy> &row = enemies[i];
         for (auto it = row.begin(); it != row.end(); ++it) {
             Enemy &enemy = *it;
             const Vector2f checker{enemy.position};
-//            std::cout << " Checker y = " << checker.y << " bottom value = " << checker.y + 40 << " Checker x = "
-//                      << checker.x << " checker x end = " << checker.x + 40 << std::endl;
             if ((checker.y < projectile_y && checker.y + 50 > projectile_y) &&
                 (checker.x < projectile_x && checker.x + 40 > projectile_x)) {
-                std::cout << " COLLISION " << std::endl;
                 Enemy::increaseSpeed();
-//                enemyMap.erase(std::remove(enemyMap.begin() , enemyMap.end() , &enemy) , enemyMap.end());
-                // Print enemy pointer being removed for debugging
-                std::cout << "Removing enemy at: " << &enemy << std::endl;
-
-                // Ensure enemyMap has valid pointers
-//ff
+                this->updateScore(enemy.type);
                 enemy.~Enemy();
                 row.erase(it);
                 if (row.empty()) {
@@ -281,16 +266,8 @@ void SDLManager::fireEnemyProjectile() {
         while (enemies[row].empty()) {
             row = getRandomIndex(enemies.size());
         }
-        if (row == -1 || row > enemyMap.size() - 1) {
-            std::cout << "No enemies available to fire." << std::endl;
-            return;
-        }
         int column = getRandomIndex(enemies[row].size());
 
-
-        std::cout << "INDEX RANDOM " << row << " COlumn = " << column << " Enemy x = "
-                  << enemies[row][column].position.x << " Enemy y = "
-                  << enemies[row][column].position.y << " Enemy Map size = " << enemyMap.size() << std::endl;
         enemyProjectiles.push_back(
                 *new Projectile(this->renderer,
                                 Vector2f(enemies[row][column].position.x, enemies[row][column].position.y + 60),
@@ -300,11 +277,6 @@ void SDLManager::fireEnemyProjectile() {
 }
 
 int SDLManager::getRandomIndex(int size) {
-    // Ensure enemyMap is not empty
-//    if (enemyMap.empty()) {
-//        return -1; // or handle the empty case as needed
-//    }
-
     // Create a random number generator
     std::random_device rd;
     std::mt19937 gen(rd());
@@ -349,9 +321,8 @@ void SDLManager::initializeFont() {
     }
 }
 
-
 void SDLManager::renderFont() {
-    SDL_Surface *surfaceText = TTF_RenderText_Solid(font, (std::to_string(playersLives)).c_str(), {255, 255, 255});
+    SDL_Surface *surfaceText = TTF_RenderText_Solid(font, (std::to_string(currentScore)).c_str(), {255, 255, 255});
     SDL_Texture *textureText = SDL_CreateTextureFromSurface(renderer, surfaceText);
     SDL_Rect rectangle;
     rectangle.x = 80;
@@ -360,4 +331,10 @@ void SDLManager::renderFont() {
     rectangle.h = 40;
     SDL_RenderCopy(renderer, textureText, nullptr, &rectangle);
     SDL_FreeSurface(surfaceText);
+}
+
+void SDLManager::updateScore(int type) {
+    if(type == 3) this->currentScore += 10;
+    if(type == 2) this->currentScore += 20;
+    if(type == 1) this->currentScore += 30;
 }

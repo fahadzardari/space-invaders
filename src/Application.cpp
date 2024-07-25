@@ -8,15 +8,10 @@
 #include <chrono>
 
 void Application::run() {
-    sdl.enemies_x=80;
-    sdl.enemies_x_end=720;
-    sdl.enemies_y= 240;
     sdl.initialize();
     sdl.createWindow();
     sdl.createShip();
     sdl.createEnemies();
-    sdl.enemiesDirection = true;
-    sdl.playersLives = 3;
     bool run = true;
     int count = 0;
     bool rightKeyPressed = false;

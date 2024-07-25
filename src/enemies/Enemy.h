@@ -21,6 +21,7 @@ class Enemy{
         virtual void moveLeft();
         virtual  void moveDown();
         static void increaseSpeed();
+        int type;
         Vector2f position;
         SDL_Texture * getTexture();
 
