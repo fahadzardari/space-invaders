@@ -17,13 +17,14 @@ void SDLManager::initialize() {
     if (!IMG_Init(IMG_INIT_PNG))
         std::cout << "Initialization Error for SDL IMAGE" << SDL_GetError() << std::endl;
     initializeFont();
-    this->enemies_x=80;
-    this->enemies_x_end=720;
-    this->enemies_y= 240;
+    this->enemies_x = 80;
+    this->enemies_x_end = 720;
+    this->enemies_y = 240;
     this->enemiesDirection = true;
     this->playersLives = 3;
     this->highestScore = 0;
     this->currentScore = 0;
+    this->gameState = 0;
 }
 
 void SDLManager::createWindow() {
@@ -42,13 +43,7 @@ SDL_Texture *SDLManager::loadTexture(const char *filePath) {
     return texture;
 }
 
-void SDLManager::renderTexture(SDL_Texture *tex) {
-    SDL_Rect dest;
-    dest.x = SCREEN_WIDTH - (SCREEN_WIDTH / 2);
-    dest.y = SCREEN_HEIGHT - 50;
-    dest.w = 50;
-    dest.h = 50;
-
+void SDLManager::renderTexture(SDL_Texture *tex , SDL_Rect dest) {
     SDL_RenderCopy(this->renderer, tex, nullptr, &dest);
 }
 
@@ -57,14 +52,18 @@ void SDLManager::clear() {
 }
 
 void SDLManager::render() {
-//    renderEnemy(&enemy);
-    renderPlayerLives();
     renderFont();
-    moveEnemies();
-    fireEnemyProjectile();
-    renderEnemies();
-    if (playersLives > 0) renderShip(&playerShip);
-    renderProjectiles();
+    if (gameState == 0) {
+        startScreen();
+    }
+    if (gameState == 1) {
+        renderPlayerLives();
+        moveEnemies();
+        fireEnemyProjectile();
+        renderEnemies();
+        if (playersLives > 0) renderShip(&playerShip);
+        renderProjectiles();
+    }
 }
 
 void SDLManager::display() {
@@ -289,20 +288,12 @@ int SDLManager::getRandomIndex(int size) {
 
 void SDLManager::renderPlayerLives() {
     SDL_Texture *tex = IMG_LoadTexture(getRenderer(), "../assets/ship-fancy.png");
-    SDL_Rect dest;
-    dest.w = 40;
-    dest.h = 40;
-    dest.y = SCREEN_HEIGHT - 60;
-    dest.x = 80 ;
+    SDL_Rect dest(80 , SCREEN_HEIGHT-60,40,40);
     for (int i = 0; i < playersLives; i++) {
         SDL_RenderCopy(this->renderer, tex, nullptr, &dest);
-        dest.x += 60 ;
+        dest.x += 60;
     }
-    SDL_Rect line;
-    line.w = SCREEN_WIDTH - 160;
-    line.h = 2;
-    line.x = 80;
-    line.y = SCREEN_HEIGHT - 70;
+    SDL_Rect line(80,SCREEN_HEIGHT-70, SCREEN_WIDTH-160,2);
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_RenderFillRect(renderer, &line);
     SDL_DestroyTexture(tex);
@@ -323,21 +314,43 @@ void SDLManager::initializeFont() {
 }
 
 void SDLManager::renderFont() {
-    std::string text = "Current Score : " + std::to_string(currentScore) + " Highest Score: " + std::to_string(highestScore);
-
-    SDL_Surface *surfaceText = TTF_RenderText_Solid(font, (text).c_str(), {255, 255, 255});
-    SDL_Texture *textureText = SDL_CreateTextureFromSurface(renderer, surfaceText);
-    SDL_Rect rectangle;
-    rectangle.x = 80;
-    rectangle.y = 10;
-    rectangle.w = SCREEN_WIDTH-160;
-    rectangle.h = 50;
-    SDL_RenderCopy(renderer, textureText, nullptr, &rectangle);
-    SDL_FreeSurface(surfaceText);
+    std::string text =
+            "Current Score : " + std::to_string(currentScore) + " Highest Score: " + std::to_string(highestScore);
+    renderText(text , 80 , 10 , SCREEN_WIDTH - 160);
 }
 
 void SDLManager::updateScore(int type) {
-    if(type == 3) this->currentScore += 10;
-    if(type == 2) this->currentScore += 20;
-    if(type == 1) this->currentScore += 30;
+    if (type == 3) this->currentScore += 10;
+    if (type == 2) this->currentScore += 20;
+    if (type == 1) this->currentScore += 30;
 }
+
+void SDLManager::startScreen() {
+    int baseX = SCREEN_WIDTH / 2 - (SCREEN_WIDTH - 360) / 2;
+    int baseY = SCREEN_HEIGHT / 3;
+    int baseW = SCREEN_WIDTH - 360;
+    std::string text =
+            "PRESS P TO PLAY";
+    renderText(text, baseX, baseY, baseW);
+    text = "SPACE INVADERS";
+    renderText(text, baseX += 20, baseY += 60, baseW -= 40);
+    text = " 30 POINTS";
+    renderText(text, baseX += 50, baseY += 60, baseW -= 80);
+    renderTexture(loadTexture("../assets/invader_purple.png") , SDL_Rect(baseX-30,baseY + 5,40 , 40) );
+    text = " 20 POINTS";
+    renderText(text, baseX, baseY += 60, baseW);
+    renderTexture(loadTexture("../assets/invader_white.png") , SDL_Rect(baseX-30,baseY + 5,40 , 40) );
+    text = " 10 POINTS";
+    renderText(text, baseX, baseY += 60, baseW);
+    renderTexture(loadTexture("../assets/invader_green.png") , SDL_Rect(baseX-30,baseY + 5,40 , 40) );
+}
+
+void SDLManager::renderText(const std::string &text, int x, int y, int w) {
+    SDL_Surface *surfaceText = TTF_RenderText_Solid(font, text.c_str(), {255, 255, 255});
+    SDL_Texture *textureText = SDL_CreateTextureFromSurface(renderer, surfaceText);
+    SDL_Rect rectangle = {x, y, w, 50};
+    SDL_RenderCopy(renderer, textureText, nullptr, &rectangle);
+    SDL_FreeSurface(surfaceText);
+    SDL_DestroyTexture(textureText);
+}
+

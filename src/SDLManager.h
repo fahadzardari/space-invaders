@@ -25,6 +25,7 @@
 class SDLManager {
 public:
     SDLManager();
+    int gameState;
     void initialize();
     void createWindow();
     void createProjectile();
@@ -32,10 +33,11 @@ public:
     SDL_Texture* loadTexture(const char* filePath);
     SDL_Renderer* getRenderer();
     void display();
-    void renderTexture(SDL_Texture* tex);
+    void renderTexture(SDL_Texture* tex , SDL_Rect dest);
     void renderProjectiles();
     void renderEnemies();
     void renderShip(Ship* ship);
+    void renderText(const std::string& text, int x, int y, int w);
     void clear();
     void cleanup();
     void render();
@@ -61,6 +63,7 @@ public:
     void renderFont();
     void renderPlayerLives();
     void updateScore(int type);
+    void startScreen();
 private:
     SDL_Window *window;
     SDL_Renderer *renderer;

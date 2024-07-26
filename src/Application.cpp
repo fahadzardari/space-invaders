@@ -10,8 +10,8 @@
 void Application::run() {
     sdl.initialize();
     sdl.createWindow();
-    sdl.createShip();
-    sdl.createEnemies();
+//    sdl.createShip();
+//    sdl.createEnemies();
     bool run = true;
     int count = 0;
     bool rightKeyPressed = false;
@@ -34,6 +34,13 @@ void Application::run() {
                             std::cout << "Left key pressed" << std::endl;
                             leftKeyPressed = true;
                             break;
+                        case SDLK_p:
+                            if (sdl.gameState == 0) {
+                                sdl.gameState++;
+                                sdl.createShip();
+                                sdl.createEnemies();
+                            }
+                            break;
                         case SDLK_UP:
                             std::cout << "Fire (f) pressed " << count++ << std::endl;
                             auto currentTime = std::chrono::steady_clock::now();
@@ -44,6 +51,7 @@ void Application::run() {
                                 lastFired = currentTime;
                             }
                             break;
+
                     }
                     break;
                 case SDL_KEYUP:
