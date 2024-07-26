@@ -293,9 +293,10 @@ void SDLManager::renderPlayerLives() {
     dest.w = 40;
     dest.h = 40;
     dest.y = SCREEN_HEIGHT - 60;
-    for (int i = 1; i <= playersLives; i++) {
-        dest.x = 80 + 40 * i + 40;
+    dest.x = 80 ;
+    for (int i = 0; i < playersLives; i++) {
         SDL_RenderCopy(this->renderer, tex, nullptr, &dest);
+        dest.x += 60 ;
     }
     SDL_Rect line;
     line.w = SCREEN_WIDTH - 160;
@@ -313,7 +314,7 @@ void SDLManager::initializeFont() {
     } else {
         std::cout << "SDL2_ttf system ready to go!" << std::endl;
     }
-    font = TTF_OpenFont("../assets/Roboto-Regular.ttf", 20);
+    font = TTF_OpenFont(FONT_AMATIC, 100);
     // Confirm that it was loaded
     if (font == nullptr) {
         std::cout << "Could not load font" << std::endl;
@@ -322,13 +323,15 @@ void SDLManager::initializeFont() {
 }
 
 void SDLManager::renderFont() {
-    SDL_Surface *surfaceText = TTF_RenderText_Solid(font, (std::to_string(currentScore)).c_str(), {255, 255, 255});
+    std::string text = "Current Score : " + std::to_string(currentScore) + " Highest Score: " + std::to_string(highestScore);
+
+    SDL_Surface *surfaceText = TTF_RenderText_Solid(font, (text).c_str(), {255, 255, 255});
     SDL_Texture *textureText = SDL_CreateTextureFromSurface(renderer, surfaceText);
     SDL_Rect rectangle;
     rectangle.x = 80;
     rectangle.y = 10;
-    rectangle.w = 40;
-    rectangle.h = 40;
+    rectangle.w = SCREEN_WIDTH-160;
+    rectangle.h = 50;
     SDL_RenderCopy(renderer, textureText, nullptr, &rectangle);
     SDL_FreeSurface(surfaceText);
 }
