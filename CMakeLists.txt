@@ -28,6 +28,10 @@ add_executable(space_invaders main.cpp
         src/enemies/Invader.h
         src/enemies/EnemyFactory.cpp
         src/enemies/EnemyFactory.h
+        src/obstacle/Obstacle.cpp
+        src/obstacle/Obstacle.h
+        src/obstacle/Block.cpp
+        src/obstacle/Block.h
 )
 # Include directories
 target_include_directories(space_invaders PRIVATE ${SDL2_INCLUDE_DIRS} ${SDL2_TTF_INCLUDE_DIRS} ${SDL2IMAGE_INCLUDE_DIRS})

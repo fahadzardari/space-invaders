@@ -10,8 +10,6 @@
 void Application::run() {
     sdl.initialize();
     sdl.createWindow();
-//    sdl.createShip();
-//    sdl.createEnemies();
     bool run = true;
     int count = 0;
     bool rightKeyPressed = false;
@@ -36,9 +34,16 @@ void Application::run() {
                             break;
                         case SDLK_p:
                             if (sdl.gameState == 0) {
-                                sdl.gameState++;
+                                sdl.gameState=1;
                                 sdl.createShip();
                                 sdl.createEnemies();
+                                sdl.createObstacles();
+                            }
+                            break;
+                        case SDLK_r:
+                            if (sdl.gameState == 2) {
+                                sdl.gameState=1;
+                                sdl.restart();
                             }
                             break;
                         case SDLK_UP:

@@ -14,6 +14,7 @@
 #include "Projectile.h"
 #include "enemies/Enemy.h"
 #include "enemies/EnemyFactory.h"
+#include "obstacle/Obstacle.h"
 #include <cmath>
 #include <chrono>
 #include <unordered_map>
@@ -64,12 +65,19 @@ public:
     void renderPlayerLives();
     void updateScore(int type);
     void startScreen();
+    void restart();
+    std::vector<Obstacle> obstacles;
+    void createObstacles();
+    void renderObstacles();
 private:
     SDL_Window *window;
     SDL_Renderer *renderer;
     std::vector<Projectile> projectiles;
     std::vector<std::vector<Enemy>> enemies;
     std::vector<Projectile> enemyProjectiles;
+    void gameOverScreen();
+
+    void renderBlock(SDL_Rect rect);
 };
 
 

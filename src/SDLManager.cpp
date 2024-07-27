@@ -39,11 +39,10 @@ SDL_Texture *SDLManager::loadTexture(const char *filePath) {
     if (texture == NULL) {
         std::cout << "Error Loading Texture Error: " << SDL_GetError() << std::endl;
     }
-
     return texture;
 }
 
-void SDLManager::renderTexture(SDL_Texture *tex , SDL_Rect dest) {
+void SDLManager::renderTexture(SDL_Texture *tex, SDL_Rect dest) {
     SDL_RenderCopy(this->renderer, tex, nullptr, &dest);
 }
 
@@ -61,8 +60,12 @@ void SDLManager::render() {
         moveEnemies();
         fireEnemyProjectile();
         renderEnemies();
+        renderObstacles();
         if (playersLives > 0) renderShip(&playerShip);
         renderProjectiles();
+    }
+    if (gameState == 2) {
+        gameOverScreen();
     }
 }
 
@@ -177,6 +180,36 @@ void SDLManager::createEnemies() {
     }
 }
 
+void SDLManager::createObstacles() {
+    float initial_x = 100;
+    float initial_y = SCREEN_HEIGHT - 230;
+    for (int i = 0; i < 5; i++) {
+        obstacles.emplace_back(initial_x, initial_y);
+        initial_x+=120;
+    }
+}
+
+void SDLManager::renderObstacles() {
+    for (auto &obstacle: obstacles) {
+        float y = obstacle.y;
+        for (const auto &j: obstacle.grid) {
+            float x = obstacle.x;
+            for (bool k : j) {
+                if (k) {
+                    renderBlock(SDL_Rect(x, y , 6 , 6));
+                }
+                x += 6;
+            }
+            y += 6;
+        }
+    }
+}
+
+void SDLManager::renderBlock(SDL_Rect rect) {
+    SDL_SetRenderDrawColor(renderer, 19, 157, 8, 1);
+    SDL_RenderFillRect(renderer , &rect);
+}
+
 void SDLManager::moveEnemies() {
     bool temp = enemiesDirection;
     bool moveDown = false;
@@ -228,6 +261,12 @@ bool SDLManager::checkCollision(Projectile *p) {
                 if (row.empty()) {
                     enemies.erase(enemies.begin() + i);
                 }
+                if (enemies.empty()) {
+                    gameState = 2;
+                    if (highestScore < currentScore) {
+                        highestScore = currentScore;
+                    }
+                }
                 return true;
             }
         }
@@ -250,11 +289,18 @@ bool SDLManager::checkCollisionEnemyProjectile(Projectile *p) {
             playerShip = Ship(renderer);
             playersLives--;
         }
+        if (playersLives == 0) {
+            gameState = 2;
+            if (highestScore < currentScore) {
+                highestScore = currentScore;
+            }
+        }
         return true;
     }
     return false;
 
 }
+
 
 void SDLManager::fireEnemyProjectile() {
     auto currentTime = std::chrono::steady_clock::now();
@@ -288,12 +334,12 @@ int SDLManager::getRandomIndex(int size) {
 
 void SDLManager::renderPlayerLives() {
     SDL_Texture *tex = IMG_LoadTexture(getRenderer(), "../assets/ship-fancy.png");
-    SDL_Rect dest(80 , SCREEN_HEIGHT-60,40,40);
+    SDL_Rect dest(80, SCREEN_HEIGHT - 60, 40, 40);
     for (int i = 0; i < playersLives; i++) {
         SDL_RenderCopy(this->renderer, tex, nullptr, &dest);
         dest.x += 60;
     }
-    SDL_Rect line(80,SCREEN_HEIGHT-70, SCREEN_WIDTH-160,2);
+    SDL_Rect line(80, SCREEN_HEIGHT - 70, SCREEN_WIDTH - 160, 2);
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_RenderFillRect(renderer, &line);
     SDL_DestroyTexture(tex);
@@ -316,7 +362,7 @@ void SDLManager::initializeFont() {
 void SDLManager::renderFont() {
     std::string text =
             "Current Score : " + std::to_string(currentScore) + " Highest Score: " + std::to_string(highestScore);
-    renderText(text , 80 , 10 , SCREEN_WIDTH - 160);
+    renderText(text, 80, 10, SCREEN_WIDTH - 160);
 }
 
 void SDLManager::updateScore(int type) {
@@ -336,13 +382,43 @@ void SDLManager::startScreen() {
     renderText(text, baseX += 20, baseY += 60, baseW -= 40);
     text = " 30 POINTS";
     renderText(text, baseX += 50, baseY += 60, baseW -= 80);
-    renderTexture(loadTexture("../assets/invader_purple.png") , SDL_Rect(baseX-30,baseY + 5,40 , 40) );
+    renderTexture(loadTexture("../assets/invader_purple.png"), SDL_Rect(baseX - 30, baseY + 5, 40, 40));
     text = " 20 POINTS";
     renderText(text, baseX, baseY += 60, baseW);
-    renderTexture(loadTexture("../assets/invader_white.png") , SDL_Rect(baseX-30,baseY + 5,40 , 40) );
+    renderTexture(loadTexture("../assets/invader_white.png"), SDL_Rect(baseX - 30, baseY + 5, 40, 40));
     text = " 10 POINTS";
     renderText(text, baseX, baseY += 60, baseW);
-    renderTexture(loadTexture("../assets/invader_green.png") , SDL_Rect(baseX-30,baseY + 5,40 , 40) );
+    renderTexture(loadTexture("../assets/invader_green.png"), SDL_Rect(baseX - 30, baseY + 5, 40, 40));
+}
+
+void SDLManager::gameOverScreen() {
+    int baseX = SCREEN_WIDTH / 2 - (SCREEN_WIDTH - 360) / 2;
+    int baseY = SCREEN_HEIGHT / 3;
+    int baseW = SCREEN_WIDTH - 360;
+    std::string text =
+            "GAME OVER!";
+    renderText(text, baseX, baseY, baseW);
+    text =
+            "PRESS R TO RESTART";
+    renderText(text, baseX, baseY += baseY / 2, baseW);
+}
+
+void SDLManager::restart() {
+    enemies.clear();
+    projectiles.clear();
+    enemyProjectiles.clear();
+    enemies.shrink_to_fit();
+    projectiles.shrink_to_fit();
+    enemyProjectiles.shrink_to_fit();
+    this->enemies_x = 80;
+    this->enemies_x_end = 720;
+    this->enemies_y = 240;
+    this->enemiesDirection = true;
+    this->playersLives = 3;
+    this->currentScore = 0;
+    Enemy::speed = 1;
+    createShip();
+    createEnemies();
 }
 
 void SDLManager::renderText(const std::string &text, int x, int y, int w) {
