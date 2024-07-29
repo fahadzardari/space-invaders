@@ -69,15 +69,15 @@ public:
     std::vector<Obstacle> obstacles;
     void createObstacles();
     void renderObstacles();
+    void gameOverScreen();
+    void renderBlock(SDL_Rect rect);
+    bool checkCollisionWithBunker(Projectile *p);
 private:
     SDL_Window *window;
     SDL_Renderer *renderer;
     std::vector<Projectile> projectiles;
     std::vector<std::vector<Enemy>> enemies;
     std::vector<Projectile> enemyProjectiles;
-    void gameOverScreen();
-
-    void renderBlock(SDL_Rect rect);
 };
 
 

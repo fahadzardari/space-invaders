@@ -135,6 +135,11 @@ void SDLManager::renderProjectiles() {
         SDL_SetRenderDrawColor(this->renderer, 255, 255, 255, 255);
         SDL_RenderFillRect(this->renderer, p.getRect());
         p.updatePosition();
+        if (checkCollisionWithBunker(&p)) {
+            p.~Projectile();
+            it = enemyProjectiles.erase(it);
+            continue;
+        }
         if (p.getRect()->y > 100) {
             if (checkCollisionEnemyProjectile(&p)) {
                 p.~Projectile();
@@ -181,11 +186,11 @@ void SDLManager::createEnemies() {
 }
 
 void SDLManager::createObstacles() {
-    float initial_x = 100;
-    float initial_y = SCREEN_HEIGHT - 230;
+    float initial_x = OBSTACLE_X;
+    float initial_y = OBSTACLE_Y;
     for (int i = 0; i < 5; i++) {
         obstacles.emplace_back(initial_x, initial_y);
-        initial_x+=120;
+        initial_x += 120;
     }
 }
 
@@ -194,20 +199,20 @@ void SDLManager::renderObstacles() {
         float y = obstacle.y;
         for (const auto &j: obstacle.grid) {
             float x = obstacle.x;
-            for (bool k : j) {
+            for (bool k: j) {
                 if (k) {
-                    renderBlock(SDL_Rect(x, y , 6 , 6));
+                    renderBlock(SDL_Rect(x, y, GRID_SQUARE_WIDTH, GRID_SQUARE_WIDTH));
                 }
-                x += 6;
+                x += GRID_SQUARE_WIDTH;
             }
-            y += 6;
+            y += GRID_SQUARE_WIDTH;
         }
     }
 }
 
 void SDLManager::renderBlock(SDL_Rect rect) {
     SDL_SetRenderDrawColor(renderer, 19, 157, 8, 1);
-    SDL_RenderFillRect(renderer , &rect);
+    SDL_RenderFillRect(renderer, &rect);
 }
 
 void SDLManager::moveEnemies() {
@@ -301,6 +306,32 @@ bool SDLManager::checkCollisionEnemyProjectile(Projectile *p) {
 
 }
 
+bool SDLManager::checkCollisionWithBunker(Projectile *p) {
+    int obstacles_width = obstacles[0].grid[0].size();
+    int obstacles_height = obstacles[0].grid.size();
+    int initial_x = 100;
+    int x = p->getRect()->x;
+    int y = p->getRect()->y - 20;
+    if (y > OBSTACLE_Y && y < OBSTACLE_Y + obstacles_height * GRID_SQUARE_WIDTH) {
+        int obstacle_range = std::floor((x - initial_x) / 120);
+        int low_limit = obstacle_range * 120 + 100;
+        int high_limit = low_limit + obstacles_width * GRID_SQUARE_WIDTH;
+        if (x > low_limit && x < high_limit) {
+            int col = std::floor((x - low_limit) / GRID_SQUARE_WIDTH);
+            int row = std::floor((y - OBSTACLE_Y) / GRID_SQUARE_WIDTH);
+            int oby = OBSTACLE_Y;
+            int temp = p->getRect()->y;
+//            int test = y - OBSTACLE_Y;
+            std::cout << " Row = " << y - OBSTACLE_Y << " Col = " << col << std::endl;
+            std::cout << " Y = " << y << " OBSTACLE_Y = " << OBSTACLE_Y << std::endl;
+            if (obstacles[obstacle_range].grid[row][col]) {
+                obstacles[obstacle_range].grid[row][col] = false;
+                return true;
+            }
+        }
+    }
+    return false;
+}
 
 void SDLManager::fireEnemyProjectile() {
     auto currentTime = std::chrono::steady_clock::now();
