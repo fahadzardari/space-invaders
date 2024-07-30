@@ -8,7 +8,7 @@ Projectile::Projectile(SDL_Renderer* renderer, Vector2f shipPos ,int spd) {
     rect.x = static_cast<int>(shipPos.x + 20) ;
     rect.y = static_cast<int>(shipPos.y - 20);
     rect.w = 2;
-    rect.h = 20;
+    rect.h = 8;
     speed = spd;
 
 }

@@ -157,7 +157,7 @@ void SDLManager::renderProjectiles() {
 }
 
 void SDLManager::createProjectile() {
-    projectiles.push_back(*new Projectile(this->renderer, playerShip.pos, 12));
+    projectiles.push_back(*new Projectile(this->renderer, playerShip.pos, 8));
     std::cout << "Projectile created" << std::endl;
 }
 
@@ -188,9 +188,9 @@ void SDLManager::createEnemies() {
 void SDLManager::createObstacles() {
     float initial_x = OBSTACLE_X;
     float initial_y = OBSTACLE_Y;
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < 4; i++) {
         obstacles.emplace_back(initial_x, initial_y);
-        initial_x += 120;
+        initial_x += OBSTACLE_RANGE;
     }
 }
 
@@ -311,21 +311,32 @@ bool SDLManager::checkCollisionWithBunker(Projectile *p) {
     int obstacles_height = obstacles[0].grid.size();
     int initial_x = 100;
     int x = p->getRect()->x;
-    int y = p->getRect()->y - 20;
-    if (y > OBSTACLE_Y && y < OBSTACLE_Y + obstacles_height * GRID_SQUARE_WIDTH) {
-        int obstacle_range = std::floor((x - initial_x) / 120);
-        int low_limit = obstacle_range * 120 + 100;
+    int y = p->getRect()->y + 8;
+    if (y > OBSTACLE_Y - 100 && y < OBSTACLE_Y + obstacles_height * GRID_SQUARE_WIDTH) {
+        int obstacle_range = std::floor((x - initial_x) / OBSTACLE_RANGE);
+        int low_limit = obstacle_range * OBSTACLE_RANGE + OBSTACLE_X;
         int high_limit = low_limit + obstacles_width * GRID_SQUARE_WIDTH;
         if (x > low_limit && x < high_limit) {
             int col = std::floor((x - low_limit) / GRID_SQUARE_WIDTH);
             int row = std::floor((y - OBSTACLE_Y) / GRID_SQUARE_WIDTH);
             int oby = OBSTACLE_Y;
-            int temp = p->getRect()->y;
-//            int test = y - OBSTACLE_Y;
             std::cout << " Row = " << y - OBSTACLE_Y << " Col = " << col << std::endl;
             std::cout << " Y = " << y << " OBSTACLE_Y = " << OBSTACLE_Y << std::endl;
+            if(row < 0) return false;
             if (obstacles[obstacle_range].grid[row][col]) {
                 obstacles[obstacle_range].grid[row][col] = false;
+                if(row > 0) obstacles[obstacle_range].grid[row-1][col] = false;
+                if(row < obstacles_height - 1) obstacles[obstacle_range].grid[row+1][col] = false;
+                if(col > 0) {
+                    obstacles[obstacle_range].grid[row][col - 1] = false;
+                    if(row < obstacles_height - 1) obstacles[obstacle_range].grid[row+1][col-1] = false;
+                    if(row > 0) obstacles[obstacle_range].grid[row-1][col-1] = false;
+                }
+                if(col < obstacles_width - 1) {
+                    obstacles[obstacle_range].grid[row][col + 1] = false;
+                    if(row < obstacles_height - 1) obstacles[obstacle_range].grid[row+1][col+1] = false;
+                    if(row > 0) obstacles[obstacle_range].grid[row-1][col+1] = false;
+                }
                 return true;
             }
         }
@@ -347,7 +358,7 @@ void SDLManager::fireEnemyProjectile() {
         enemyProjectiles.push_back(
                 *new Projectile(this->renderer,
                                 Vector2f(enemies[row][column].position.x, enemies[row][column].position.y + 60),
-                                -12));
+                                -8));
         lastProjectile = currentTime;
     }
 }
@@ -438,9 +449,11 @@ void SDLManager::restart() {
     enemies.clear();
     projectiles.clear();
     enemyProjectiles.clear();
+    obstacles.clear();
     enemies.shrink_to_fit();
     projectiles.shrink_to_fit();
     enemyProjectiles.shrink_to_fit();
+    obstacles.shrink_to_fit();
     this->enemies_x = 80;
     this->enemies_x_end = 720;
     this->enemies_y = 240;
@@ -450,6 +463,7 @@ void SDLManager::restart() {
     Enemy::speed = 1;
     createShip();
     createEnemies();
+    createObstacles();
 }
 
 void SDLManager::renderText(const std::string &text, int x, int y, int w) {
