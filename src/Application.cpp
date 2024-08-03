@@ -50,7 +50,7 @@ void Application::run() {
                             std::cout << "Fire (f) pressed " << count++ << std::endl;
                             auto currentTime = std::chrono::steady_clock::now();
                             const std::chrono::duration<double> elapsed_seconds{currentTime - lastFired};
-                            const std::chrono::duration<double> duration{0.25};
+                            const std::chrono::duration<double> duration{0.5};
                             if (elapsed_seconds > duration) {
                                 sdl.createProjectile();
                                 lastFired = currentTime;

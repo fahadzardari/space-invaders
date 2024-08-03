@@ -63,6 +63,7 @@ void SDLManager::render() {
         renderObstacles();
         if (playersLives > 0) renderShip(&playerShip);
         renderProjectiles();
+        if(enemies[enemies.size() - 1][0].position.y >= OBSTACLE_Y) gameState = 2;
     }
     if (gameState == 2) {
         gameOverScreen();
@@ -117,6 +118,11 @@ void SDLManager::renderProjectiles() {
         SDL_SetRenderDrawColor(this->renderer, 255, 255, 255, 255);
         SDL_RenderFillRect(this->renderer, p.getRect());
         p.updatePosition();
+        if (checkCollisionWithBunker(&p)) {
+            p.~Projectile();
+            it = projectiles.erase(it);
+            continue;
+        }
         if (checkCollision(&p)) {
             p.~Projectile();
             it = projectiles.erase(it);
@@ -347,7 +353,7 @@ bool SDLManager::checkCollisionWithBunker(Projectile *p) {
 void SDLManager::fireEnemyProjectile() {
     auto currentTime = std::chrono::steady_clock::now();
     const std::chrono::duration<double> elapsed_seconds{currentTime - lastProjectile};
-    const std::chrono::duration<double> duration{1};
+    const std::chrono::duration<double> duration{0.6};
     if (elapsed_seconds > duration && !enemies.empty()) {
         int row = getRandomIndex(enemies.size());
         while (enemies[row].empty()) {
