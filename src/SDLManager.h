@@ -4,9 +4,9 @@
 
 #ifndef SPACE_INVADERS_SDLMANAGER_H
 #define SPACE_INVADERS_SDLMANAGER_H
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
-#include <SDL2/SDL_keyboard.h>
+#include <SDL.h>
+#include <SDL_image.h>
+#include <SDL_keyboard.h>
 #include <iostream>
 #include <vector>
 #include "Constants.h"
@@ -20,7 +20,7 @@
 #include <unordered_map>
 #include <cmath>
 #include <random>
-#include <SDL2/SDL_ttf.h>
+#include <SDL_ttf.h>
 //#include FT_FREETYPE_H
 
 class SDLManager {

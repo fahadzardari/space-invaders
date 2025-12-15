@@ -4,7 +4,7 @@
 
 #ifndef SPACE_INVADERS_PROJECTILE_H
 #define SPACE_INVADERS_PROJECTILE_H
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include "Vector2f.h"
 #include <iostream>
 

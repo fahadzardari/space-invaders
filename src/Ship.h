@@ -6,8 +6,8 @@
 
 #ifndef SPACE_INVADERS_SHIP_H
 #define SPACE_INVADERS_SHIP_H
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
+#include <SDL.h>
+#include <SDL_image.h>
 #include <iostream>
 #include "Vector2f.h"
 #include "Constants.h"
